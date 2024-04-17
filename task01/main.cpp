@@ -3,9 +3,13 @@
 #include <cassert>
 #include <vector>
 #include <filesystem>
+#include <cmath>
 //
 #define STB_IMAGE_WRITE_IMPLEMENTATION
 #include "stb_image_write.h"
+#ifndef M_PI
+#define M_PI 3.14159265358979323846264338327950288
+#endif
 
 /**
  * @brief compute the area of a triangle
@@ -65,6 +69,13 @@ void draw_polygon(
         float p1x = polygon_xy[i1_vtx * 2 + 0] - x;
         float p1y = polygon_xy[i1_vtx * 2 + 1] - y;
         // write a few lines of code to compute winding number (hint: use atan2)
+        float dot = p0x * p1x + p0y * p1y;
+        float cross = p0x * p1y - p0y * p1x;
+        //if(cross == 0 && dot <= 0) {  //for point on vertex or edge
+        //  img_data[ih*width + iw] = brightness;
+        //  break;
+        //}
+        winding_number -= atan2(cross, dot) / (2.0 * M_PI);
       }
       const int int_winding_number = int(std::round(winding_number));
       if (int_winding_number == 1 ) { // if (x,y) is inside the polygon
@@ -91,6 +102,25 @@ void dda_line(
   auto dx = x1 - x0;
   auto dy = y1 - y0;
   // write some code below to paint pixel on the line with color `brightness`
+  float x_incr, y_incr;
+  int step;
+  if(abs(dx) > abs(dy)) {
+      x_incr = dx / abs(dx);
+      y_incr = dy / abs(dx);
+      step = abs((int)x1 - (int)x0) + 1;
+  } else {
+      x_incr = dx / abs(dy);
+      y_incr = dy / abs(dy);
+      step = abs((int)y1 - (int)y0) + 1;
+  }
+
+  float x = x0;
+  float y = y0;
+  for (int i = 0; i < step; i++) {
+      img_data[(int)y * width + (int)x] = brightness;
+      x += x_incr;
+      y += y_incr;
+  }
 }
 
 int main() {
