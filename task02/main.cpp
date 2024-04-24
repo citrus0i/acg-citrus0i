@@ -41,8 +41,8 @@ int number_of_intersection_ray_against_edge(
   auto a = area(org, org + dir, ps);
   auto b = area(org, pe, org + dir);
   auto c = area(org, ps, pe);
-  auto d = area(org + dir, ps, pe);
-  if (a * b > 0.f && d * c > 0.f && fabs(d) > fabs(c)) { return 1; }
+  auto d = area(dir+ps, ps, pe);
+  if (a * b > 0.f && d * c < 0.f) { return 1; }
   return 0;
 }
 
@@ -62,8 +62,40 @@ int number_of_intersection_ray_against_quadratic_bezier(
     const Eigen::Vector2f &pc,
     const Eigen::Vector2f &pe) {
   // comment out below to do the assignment
-  return number_of_intersection_ray_against_edge(org, dir, ps, pe);
+  // return number_of_intersection_ray_against_edge(org, dir, ps, pe);
   // write some code below to find the intersection between ray and the quadratic
+  int count = 0;
+  // pt (-org) = at^2 + bt + c (-org)
+  Eigen::Vector2f a = ps - 2 * pc + pe;
+  Eigen::Vector2f b = 2 * pc - 2 * ps;
+  Eigen::Vector2f c = ps - org;
+  // (pt - org) X dir = 0
+  float A = a.cross(dir);
+  float B = b.cross(dir);
+  float C = c.cross(dir);
+  if(A != 0){
+      float delta = B * B - 4 * A * C;
+      if(delta >= 0){
+          float t1 = (-B + sqrt(delta)) / (2 * A);
+          float t2 = (-B - sqrt(delta)) / (2 * A);
+          if(t1 >= 0 && t1 <= 1){
+              Eigen::Vector2f pt1 = a * t1 * t1 + b * t1 + ps;
+              if(pt1[0] > org[0] && pt1[1] > org[1]) count++;
+          }
+          if(t2 >= 0 && t2 <= 1 && t2 != t1) {
+              Eigen::Vector2f pt2 = a * t2 * t2 + b * t2 + ps;
+              if(pt2[0] > org[0] && pt2[1] > org[1]) count++;
+          }
+      }
+  }
+//  else if(B != 0){  //three control points in one line
+//      float t = -C / B;
+//      if(t >= 0 && t <= 1) {
+//          Eigen::Vector2f pt = b * t + ps;
+//          if(pt[0] > org[0] && pt[1] > org[1]) count++;
+//      }
+//  }
+  return count;
 }
 
 int main() {
