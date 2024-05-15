@@ -27,6 +27,10 @@ void main()
         //x0 = ???
         //y0 = ???
         //z0 = ???
+        float dp = dot(org - vec3(x0, y0, z0), -nrm);
+        x0 = x0 - 1.75 * dp * nrm.x;
+        z0 = z0 - 1. * dp * nrm.z;
+        //this set of coefficients is able to create almost exactly the same result as the preview image
     }
     // do not edit below
 
