@@ -139,6 +139,18 @@ class HelloWorld(mglw.WindowConfig):
         # you may use `spsolve` to solve the liner system
         # spsolve: https://docs.scipy.org/doc/scipy/reference/generated/scipy.sparse.linalg.spsolve.html#scipy.sparse.linalg.spsolve
 
+        # Problem 2: Laplacian deformation
+        # solve the linear system (Ax=b): (D+L)x = Dx_def + Lx_ini
+        A = self.matrix_fix + self.matrix_laplace
+        b = self.matrix_fix.dot(self.vtx2xyz_def) + self.matrix_laplace.dot(self.vtx2xyz_ini)
+        for i in range(3):
+            self.vtx2xyz_def[:, i] = spsolve(A, b[:, i])
+
+        # Problem 3: Bi-Laplacian deformation
+        A = self.matrix_fix + self.matrix_bilaplace
+        b = self.matrix_fix.dot(self.vtx2xyz_def) + self.matrix_bilaplace.dot(self.vtx2xyz_ini)
+        for i in range(3):
+            self.vtx2xyz_def[:, i] = spsolve(A, b[:, i])
 
         # do not edit beyond here
         # above: deformation
